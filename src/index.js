@@ -6,8 +6,11 @@ require('dotenv').config()
 // React app
 const app = express()
 
+// ENV Variables
 const PORT = process.env.PORT || 3000
 const databaseURI = process.env.DATABASE_URI;
+const databaseName = process.env.DATABASE;
+const collectionName= process.env.COLLECTION_NAME;
 const binId = new mongodb.ObjectId(process.env.BIN_ID);
 
 // Bin statu to read from
@@ -29,9 +32,9 @@ const updateBinStatus = async (newStatus) => {
     if (!client) console.log('Can not connect to db');
 
     try {
-        const db = client.db('lemmaj');
+        const db = client.db(databaseName);
 
-        let collection = db.collection('Course');
+        let collection = db.collection(collectionName);
         let query = { _id: binId };
 
         const resultOriginal = await collection.findOne(query);
