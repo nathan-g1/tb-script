@@ -35,11 +35,9 @@ const updateBinStatus = async (newStatus) => {
         let query = { _id: binId };
         console.log('query', query)
         const resultOriginal = await collection.findOne(query);
-        if (resultOriginal) {
-            var name = resultOriginal['name']
-            console.log('Name IS ', (name))
+        if (!resultOriginal) {
+            console.log(`Can't find document with the given id`);
         }
-        console.log('Old result', resultOriginal);
 
         // Update Status
         const updateQuery = {
@@ -60,7 +58,7 @@ const updateBinStatus = async (newStatus) => {
 const listen = () => {
     server = app.listen(PORT, () => {
         console.log(`Server listening on port ${PORT}`)
-        updateBinStatus(binStatus)
+        cronJob()
     })
 }
 
@@ -68,7 +66,7 @@ const close = () => {
     server.close();
 }
 
-cron.schedule('* * * * *', () => {
+const cronJob = cron.schedule('* * * * *', () => {
     console.log(`Updating bins status at ${new Date().getDate()}`)
     updateBinStatus(binStatus)
 });
