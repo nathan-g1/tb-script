@@ -33,7 +33,7 @@ const updateBinStatus = async (newStatus) => {
 
         let collection = db.collection('Course');
         let query = { _id: binId };
-        console.log('query', query)
+
         const resultOriginal = await collection.findOne(query);
         if (!resultOriginal) {
             console.log(`Can't find document with the given id`);
