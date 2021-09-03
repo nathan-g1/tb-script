@@ -22,7 +22,7 @@ let server = null
 
 // Connect to DB
 const connectToDb = async () => {
-    const client = await mongodb.MongoClient.connect(databaseURI, { useNewUrlParser: true })
+    const client = await MongoClient.connect(databaseURI, { useNewUrlParser: true })
         .catch(err => { console.log('What the heck', err) });
     if (!client) return null;
     return client;
@@ -37,20 +37,19 @@ const updateBinStatus = async (newStatus) => {
         const db = client.db(databaseName);
 
         let collection = db.collection(collectionName);
-        let query = { _id: binId };
-
-        const resultOriginal = await collection.findOne(query);
-        if (!resultOriginal) {
-            console.log(`Can't find document with the given id`);
-        }
-
-        // Update Status
-        const updateQuery = {
-            $set: { status: newStatus }
+        let doc = {
+            _id: new ObjectId(),
+            binId: binId,
+            newStatus,
+            createdDate: new Date()
         };
 
-        const result = await collection.updateOne(query, updateQuery);
-        if (result) console.log('Bin updated successfully');
+        const result = await collection.insertOne(doc);
+        if (!result) {
+            console.log(`Can't create document with the given status`);
+        }
+
+        if (result) console.log('Bin status updated successfully');
 
     } catch (error) {
         console.log('Error..', error);
@@ -63,7 +62,7 @@ const updateBinStatus = async (newStatus) => {
 const listen = () => {
     server = app.listen(PORT, () => {
         console.log(`Server listening on port ${PORT}`)
-        cronJob()
+        cronJob.start()
     })
 }
 
@@ -72,7 +71,7 @@ const close = () => {
 }
 
 const cronJob = cron.schedule('* * * * *', () => {
-    console.log(`Updating bins status at ${new Date().getDate()}`)
+    console.log(`Updating bins status at ${new Date()}`)
     updateBinStatus(binStatus)
 });
 
