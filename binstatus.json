@@ -1,0 +1,12 @@
+ {
+    "weight": {
+        "blue": 223,
+        "red": 234,
+        "other": 209.23
+    },
+    "speed": 23,
+    "location": {
+        "long": 8.834,
+        "lati": 34.23
+    }
+}
