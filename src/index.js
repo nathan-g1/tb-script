@@ -1,5 +1,7 @@
 const express = require('express')
-const mongodb = require('mongodb');
+const mongo = require('mongodb');
+const MongoClient = mongo.MongoClient;
+const ObjectId = mongo.ObjectId;
 const cron = require('node-cron')
 require('dotenv').config()
 
@@ -10,8 +12,8 @@ const app = express()
 const PORT = process.env.PORT || 3000
 const databaseURI = process.env.DATABASE_URI;
 const databaseName = process.env.DATABASE;
-const collectionName= process.env.COLLECTION_NAME;
-const binId = new mongodb.ObjectId(process.env.BIN_ID);
+const collectionName = process.env.COLLECTION_NAME;
+const binId = process.env.BIN_ID
 
 // Bin statu to read from
 let binStatus = require('../binstatus.json')
