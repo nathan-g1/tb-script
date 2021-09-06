@@ -1,7 +1,5 @@
-const express = require('express')
-const mongo = require('mongodb');
-const MongoClient = mongo.MongoClient;
-const ObjectId = mongo.ObjectId;
+const express = require('express');
+const axios = require('axios');
 const cron = require('node-cron')
 require('dotenv').config()
 
@@ -11,8 +9,7 @@ const app = express()
 // ENV Variables
 const PORT = process.env.PORT || 3000
 const databaseURI = process.env.DATABASE_URI;
-const databaseName = process.env.DATABASE;
-const collectionName = process.env.COLLECTION_NAME;
+const API_URL = process.env.API_URL;
 const binId = process.env.BIN_ID
 
 // Bin statu to read from
@@ -23,38 +20,32 @@ let server = null
 // Connect to DB
 const connectToDb = async () => {
     const client = await MongoClient.connect(databaseURI, { useNewUrlParser: true })
-        .catch(err => { console.log('What the heck', err) });
+        .catch(err => { console.log('...', err) });
     if (!client) return null;
     return client;
 }
 
 // Update status of the bin program currently running on
 const updateBinStatus = async (newStatus) => {
-    const client = await connectToDb();
-    if (!client) console.log('Can not connect to db');
-
     try {
-        const db = client.db(databaseName);
-
-        let collection = db.collection(collectionName);
         let doc = {
-            _id: new ObjectId(),
             binId: binId,
             newStatus,
             createdDate: new Date()
         };
 
-        const result = await collection.insertOne(doc);
-        if (!result) {
+        const response = await axios.post(API_URL, doc);
+
+        if (!response) {
             console.log(`Can't create document with the given status`);
         }
 
-        if (result) console.log('Bin status updated successfully');
+        if (response) console.log('Bin status updated successfully');
 
     } catch (error) {
         console.log('Error..', error);
     } finally {
-        client.close()
+        close()
     }
 }
 
@@ -70,7 +61,7 @@ const close = () => {
     server.close();
 }
 
-const cronJob = cron.schedule('* * * * *', () => {
+const cronJob = cron.schedule('*/10 * * * * *', () => {
     console.log(`Updating bins status at ${new Date()}`)
     updateBinStatus(binStatus)
 });
